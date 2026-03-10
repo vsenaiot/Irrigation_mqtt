@@ -249,7 +249,7 @@ function startDashboard(){
         );
         setTimeout(() => {
             motorCard.classList.remove("processing");
-        }, 1000);
+        }, 3000);
     };
 
 
@@ -276,7 +276,8 @@ function startDashboard(){
         valvesButtons.push({card,button,valveId:`v${i}`});
 
         button.onclick=()=>{
-
+            // Start blinking
+            card.classList.add("processing");
             const state=button.innerText==="ON"?"1":"0";
             const newState=state==="1"?"0":"1";
 
@@ -284,12 +285,16 @@ function startDashboard(){
                 `farm/${motorId}/cmd/v${i}`,
                 newState
             );
-
+            // Stop blinking after 1 second
+            setTimeout(()=>{
+                card.classList.remove("processing");
+            },3000);
         };
 
     }
 
 }
+
 
 
 

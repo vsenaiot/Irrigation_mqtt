@@ -220,13 +220,20 @@ function startDashboard(){
     const motorBtn=document.getElementById("motorBtn");
 
     motorBtn.onclick=()=>{
-
+        console.log("Motor button pressed");
         const current=motorBtn.innerText==="ON"?"1":"0";
         const newState=current==="1"?"0":"1";
 
         mqttClient.publish(
             `farm/${motorId}/cmd/motor`,
-            newState
+            newState,
+            {},
+        (err) => {
+                if(err)
+                    console.log("Publish failed", err);
+                else
+                    console.log("Command sent:", newState);
+            }
         );
 
     };
@@ -269,3 +276,4 @@ function startDashboard(){
     }
 
 }
+

@@ -38,6 +38,7 @@ mqttClient.on("connect", () => {
 
     mqttClient.subscribe(`farm/${motorId}/status/#`);
     mqttClient.subscribe(`farm/${motorId}/sensor/#`);
+    mqttClient.subscribe(`farm/${motorId}/telemetry`);
 
 });
 
@@ -293,5 +294,6 @@ function startDashboard(){
     }
 
 }
+
 
 

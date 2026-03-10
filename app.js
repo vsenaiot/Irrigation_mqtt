@@ -1,9 +1,10 @@
 // app.js (module)
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js";
-// --- Firebase Config ---
+
 const firebaseConfig = {
     apiKey: "AIzaSyCQcgEN51zZ3wnQGt3cd2cTBKpfsR55VEU",
     authDomain: "irrigation-iot-esp.firebaseapp.com",
@@ -14,7 +15,6 @@ const firebaseConfig = {
     appId: "1:877141032044:web:e5f4c417466ce936f76c49"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth();
@@ -22,198 +22,250 @@ const messaging = getMessaging(app);
 
 const motorId = "device_001";
 
-// References for dashboard elements
-const motorCard = document.getElementById("motorCard");
-const motorBtn = document.getElementById("motorBtn");
-const motorValuesRef = ref(db, `devices/${motorId}/sensors`);
-const motorStatusRef = ref(db, `devices/${motorId}/status`);
-const valvesContainer = document.getElementById("valveContainer");
-const valvesButtons = [];
 
-// --- LOGIN ---
-window.login = function() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    signInWithEmailAndPassword(auth, email, password)
-        .catch(err => {
-            document.getElementById("loginError").innerText = err.message;
-        });
-};
+// MQTT CONNECTION
 
-// --- LOGOUT ---
-window.logout = function() {
-    signOut(auth);
-};
-// Request Notification Permission
-async function enableNotifications(){
+const mqttClient = mqtt.connect(
+"wss://d71c49fb95344b20bf831879c83b3c75.s1.eu.hivemq.cloud:8884/mqtt",
+{
+    username: "Vsena",
+    password: "Smart@123"
+});
 
-    const permission = await Notification.requestPermission();
+mqttClient.on("connect", () => {
 
-    if(permission === "granted"){
+    console.log("MQTT connected");
 
-        const token = await getToken(messaging, {
-            vapidKey: "BPc0_ZIEfRqKyJlhbXfA4TG0s6e300LLyR-R4fdHoL2YI-y9GmD0Lfe2aZP1dStGqW5U30H-1zZBbSZZ1vRZNgs"
-        });
+    mqttClient.subscribe(`farm/${motorId}/status/#`);
+    mqttClient.subscribe(`farm/${motorId}/sensor/#`);
 
-        console.log("FCM Token:", token);
+});
 
-        await set(
-            ref(db, `devices/${motorId}/notification_token`),
-            token
-        );
+
+// MQTT MESSAGE HANDLER
+
+mqttClient.on("message", (topic, message) => {
+
+    const payload = message.toString();
+    const parts = topic.split("/");
+
+    const type = parts[2];
+    const name = parts[3];
+
+    if(type === "sensor"){
+        updateSensorUI(name, payload);
     }
+
+    if(type === "status"){
+        updateStatusUI(name, payload);
+    }
+
+});
+
+
+// SENSOR UI UPDATE
+
+function updateSensorUI(name,value){
+
+    if(name==="voltage_r")
+        document.getElementById("rPhase").innerText=value+" V";
+
+    if(name==="voltage_y")
+        document.getElementById("yPhase").innerText=value+" V";
+
+    if(name==="voltage_b")
+        document.getElementById("bPhase").innerText=value+" V";
+
+    if(name==="current_r")
+        document.getElementById("rCurrent").innerText=value+" A";
+
+    if(name==="current_y")
+        document.getElementById("yCurrent").innerText=value+" A";
+
+    if(name==="current_b")
+        document.getElementById("bCurrent").innerText=value+" A";
+
+    if(name==="pressure")
+        document.getElementById("pressure").innerText=value;
+
 }
 
-// --- Auth Listener ---
-onAuthStateChanged(auth, user => {
-    if(user){
-        document.getElementById("loginDiv").style.display = "none";
-        document.getElementById("dashboard").style.display = "block";
-        enableNotifications(); 
-        startDashboard();
-    } else {
-        document.getElementById("loginDiv").style.display = "block";
-        document.getElementById("dashboard").style.display = "none";
+
+// STATUS UI UPDATE
+
+function updateStatusUI(name,value){
+
+    if(name==="motor"){
+
+        const motorCard=document.getElementById("motorCard");
+        const motorBtn=document.getElementById("motorBtn");
+
+        if(value=="1"){
+
+            motorCard.classList.add("on");
+            motorCard.classList.remove("off");
+            motorBtn.innerText="ON";
+
+        }else{
+
+            motorCard.classList.add("off");
+            motorCard.classList.remove("on");
+            motorBtn.innerText="OFF";
+
+        }
     }
-});
 
-// Incoming Notifications
-onMessage(messaging, (payload) => {
+    if(name.startsWith("v")){
 
-    console.log("Notification received:", payload);
+        valvesButtons.forEach((v)=>{
 
-    new Notification(payload.notification.title, {
-        body: payload.notification.body
+            if(v.valveId===name){
+
+                if(value=="1"){
+                    v.card.classList.add("on");
+                    v.card.classList.remove("off");
+                    v.button.innerText="ON";
+                }else{
+                    v.card.classList.add("off");
+                    v.card.classList.remove("on");
+                    v.button.innerText="OFF";
+                }
+
+            }
+
+        });
+
+    }
+
+}
+
+
+// LOGIN
+
+window.login=function(){
+
+    const email=document.getElementById("email").value;
+    const password=document.getElementById("password").value;
+
+    signInWithEmailAndPassword(auth,email,password)
+    .catch(err=>{
+        document.getElementById("loginError").innerText=err.message;
     });
 
+};
+
+
+// LOGOUT
+
+window.logout=function(){
+    signOut(auth);
+};
+
+
+// NOTIFICATIONS
+
+async function enableNotifications(){
+
+    const permission=await Notification.requestPermission();
+
+    if(permission==="granted"){
+
+        const token=await getToken(messaging,{
+            vapidKey:"YOUR_VAPID_KEY"
+        });
+
+        await set(
+            ref(db,`devices/${motorId}/notification_token`),
+            token
+        );
+
+    }
+
+}
+
+
+// AUTH LISTENER
+
+onAuthStateChanged(auth,user=>{
+
+    if(user){
+
+        document.getElementById("loginDiv").style.display="none";
+        document.getElementById("dashboard").style.display="block";
+
+        enableNotifications();
+        startDashboard();
+
+    }else{
+
+        document.getElementById("loginDiv").style.display="block";
+        document.getElementById("dashboard").style.display="none";
+
+    }
+
 });
 
-// --- START DASHBOARD AFTER LOGIN ---
+
+// DASHBOARD
+
+const valvesContainer=document.getElementById("valveContainer");
+const valvesButtons=[];
+
 function startDashboard(){
 
-    valvesContainer.innerHTML = "";
-    valvesButtons.length = 0;
+    valvesContainer.innerHTML="";
+    valvesButtons.length=0;
 
-    // Motor Toggle
-    motorBtn.onclick = async () => {
-        motorCard.classList.add("processing");
 
-    // Read actual motor STATUS
-        const statusSnap = await get(ref(db, `devices/${motorId}/status/motor`));
-        const currentStatus = statusSnap.val();
+    const motorBtn=document.getElementById("motorBtn");
 
-        if (currentStatus === 1) {
-            // Motor is ON → send OFF command
-            await set(ref(db, `devices/${motorId}/control/motor`), 0);
-        } else {
-            // Motor is OFF → send ON command
-            await set(ref(db, `devices/${motorId}/control/motor`), 1);
-        }
+    motorBtn.onclick=()=>{
 
-        setTimeout(() => {
-            motorCard.classList.remove("processing");
-        }, 1000);
+        const current=motorBtn.innerText==="ON"?"1":"0";
+        const newState=current==="1"?"0":"1";
+
+        mqttClient.publish(
+            `farm/${motorId}/cmd/motor`,
+            newState
+        );
+
     };
 
-    // Motor Sensors
-    onValue(motorValuesRef, snap => {
-        const data = snap.val();
-        if(data){
-            document.getElementById("rPhase").innerText = data.voltage.phase_r + " V";
-            document.getElementById("yPhase").innerText = data.voltage.phase_y + " V";
-            document.getElementById("bPhase").innerText = data.voltage.phase_b + " V";
 
-            document.getElementById("rCurrent").innerText = data.current.phase_r + " A";
-            document.getElementById("yCurrent").innerText = data.current.phase_y + " A";
-            document.getElementById("bCurrent").innerText = data.current.phase_b + " A";
-
-            document.getElementById("pressure").innerText = data.pressure;
-        }
-    });
-
-    // Motor Status + Valves
-    onValue(motorStatusRef, snap=>{
-        const data = snap.val();
-        if(data){
-
-            const ebElement = document.getElementById("ebStatus");
-            ebElement.innerText = data.eb_power == 1 ? "ON" : "OFF";
-            ebElement.style.color = data.eb_power == 1 ? "#22c55e" : "#ef4444";
-            document.getElementById("status").innerText = data.motor?"ON":"OFF";
-
-            if(data.motor){
-                motorCard.classList.add("on");
-                motorCard.classList.remove("off");
-                motorBtn.innerText="ON";
-            } else {
-                motorCard.classList.add("off");
-                motorCard.classList.remove("on");
-                motorBtn.innerText="OFF";
-            }
-
-            if(data.valves){
-                valvesButtons.forEach((v)=>{
-                    const val = data.valves[v.valveId];
-                    if(val===1){
-                        v.card.classList.add("on");
-                        v.card.classList.remove("off");
-                        v.button.innerText="ON";
-                    } else {
-                        v.card.classList.add("off");
-                        v.card.classList.remove("on");
-                        v.button.innerText="OFF";
-                    }
-                });
-            }
-        }
-    });
-
-    // Create valves
     for(let i=1;i<=8;i++){
 
-        const card = document.createElement("div");
+        const card=document.createElement("div");
         card.className="card off";
 
-        const title = document.createElement("h4");
-        title.innerText = "Valve " + i;
+        const title=document.createElement("h4");
+        title.innerText="Valve "+i;
 
-        const img = document.createElement("img");
-        img.src="assets/valve.png";  // ✅ corrected path
+        const img=document.createElement("img");
+        img.src="assets/valve.png";
 
-        const button = document.createElement("button");
+        const button=document.createElement("button");
         button.innerText="OFF";
 
         card.appendChild(title);
         card.appendChild(img);
         card.appendChild(button);
+
         valvesContainer.appendChild(card);
 
-        valvesButtons.push({card, button, valveId:`v${i}`});
+        valvesButtons.push({card,button,valveId:`v${i}`});
 
-        button.onclick = async () => {
+        button.onclick=()=>{
 
-            // Start blinking
-            card.classList.add("processing");
-            const statusSnap = await get(ref(db, `devices/${motorId}/status/valves/v${i}`));
-            const currentStatus = statusSnap.val();
+            const state=button.innerText==="ON"?"1":"0";
+            const newState=state==="1"?"0":"1";
 
-            if (currentStatus === 1) {
-                // Valve is ON → send OFF command
-                await set(ref(db, `devices/${motorId}/control/valves/v${i}`), 0);
-            } else {
-                // Valve is OFF → send ON command
-                await set(ref(db, `devices/${motorId}/control/valves/v${i}`), 1);
-            }
+            mqttClient.publish(
+                `farm/${motorId}/cmd/v${i}`,
+                newState
+            );
 
-            // Stop blinking after 1 second
-            setTimeout(()=>{
-                card.classList.remove("processing");
-            },1000);
         };
+
     }
+
 }
-
-
-
-
-

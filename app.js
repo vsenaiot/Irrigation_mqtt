@@ -47,20 +47,10 @@ mqttClient.on("connect", () => {
 
 mqttClient.on("message", (topic, message) => {
 
-    const payload = message.toString();
-    const parts = topic.split("/");
-
-    const type = parts[2];
-    const name = parts[3];
-
-    // if(type === "sensor"){
-    //     updateSensorUI(name, payload);
-    // }
-
-    if(type === "status"){
-        updateStatusUI(name, payload);
-    }
-    if(topic==="farm/device_001/telemetry"){
+    console.log("MQTT Message:", topic, payload);
+    const payload = message.toString();    
+    
+    if(topic === `farm/${motorId}/telemetry`){
 
     let data = JSON.parse(message.toString());
     
@@ -75,8 +65,16 @@ mqttClient.on("message", (topic, message) => {
     updateSensorUI("pressure",data.pressure);
     
     updateMotorUI(data.motor);
-    
+    return;    
     }
+    const parts = topic.split("/");
+    const type = parts[2];
+    const name = parts[3];
+
+    if(type === "status"){
+        updateStatusUI(name, payload);
+    }
+
 
 });
 
@@ -294,6 +292,7 @@ function startDashboard(){
     }
 
 }
+
 
 
 

@@ -57,7 +57,9 @@ mqttClient.on("message", (topic, message) => {
     updateSensorUI("current_r",data.current_r);
     updateSensorUI("current_y",data.current_y);
     updateSensorUI("current_b",data.current_b);    
-    updateSensorUI("pressure",data.pressure);    
+    updateSensorUI("pressure",data.pressure);
+    updateSensorUI("fault",data.fault);    
+    updateSensorUI("ebStatus",data.ebStatus);      
     updateStatusUI("motor",data.motor);
     return;    
     }
@@ -98,7 +100,10 @@ function updateSensorUI(name,value){
 
     if(name==="pressure")
         document.getElementById("pressure").innerText=value;
-
+    if(name==="ebStatus")
+        document.getElementById("ebStatus").innerText=value;    
+    if(name==="fault")
+        document.getElementById("status").innerText=value;  
 }
 
 
@@ -294,6 +299,7 @@ function startDashboard(){
     }
 
 }
+
 
 
 

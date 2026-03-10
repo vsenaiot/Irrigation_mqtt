@@ -61,7 +61,7 @@ mqttClient.on("message", (topic, message) => {
     
     updateSensorUI("pressure",data.pressure);
     
-    updateMotorUI(data.motor);
+    updateStatusUI("motor",data.motor);
     return;    
     }
     const parts = topic.split("/");
@@ -289,6 +289,7 @@ function startDashboard(){
     }
 
 }
+
 
 
 

@@ -232,6 +232,7 @@ function startDashboard(){
 
     motorBtn.onclick=()=>{
         console.log("Motor button pressed");
+        motorCard.classList.add("processing");
         const current=motorBtn.innerText==="ON"?"1":"0";
         const newState=current==="1"?"0":"1";
 
@@ -246,7 +247,9 @@ function startDashboard(){
                     console.log("Command sent:", newState);
             }
         );
-
+        setTimeout(() => {
+            motorCard.classList.remove("processing");
+        }, 1000);
     };
 
 
@@ -287,6 +290,7 @@ function startDashboard(){
     }
 
 }
+
 
 
 

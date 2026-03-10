@@ -1,0 +1,167 @@
+/* ------------------- BODY ------------------- */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #1f2937, #111827);
+    color: white;
+    text-align: center;
+}
+
+/* ------------------- HEADINGS ------------------- */
+h1 {
+    padding: 20px;
+    font-size: 28px;
+}
+
+h2 {
+    margin-top: 40px;
+}
+
+/* ------------------- MOTOR + VALUES WRAPPER ------------------- */
+.motor-wrapper {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* ------------------- MOTOR CARD ------------------- */
+.card {
+    width: 160px;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    background: #1e293b;
+    transition: 0.3s;
+}
+
+.card img {
+    width: 80px;
+    margin-bottom: 10px;
+    transition: 0.3s;
+}
+
+/* OFF STATE */
+.off {
+    background: rgba(239, 68, 68, 0.15);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+}
+
+.off button {
+    background: #ef4444;
+    color: white;
+}
+
+/* ON STATE */
+.on {
+    background: rgba(34, 197, 94, 0.15);
+    box-shadow: 0 0 20px #22c55e;
+}
+
+.on button {
+    background: #22c55e;
+    color: white;
+}
+
+/* ------------------- BUTTON ------------------- */
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100px;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+/* ------------------- VALUES CARD ------------------- */
+.values-card {
+    width: 420px;
+    padding: 25px;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+/* Each value box */
+.values-card div {
+    background: rgba(255,255,255,0.05);
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+/* Hover effect */
+.values-card div:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-2px);
+}
+
+/* Value number styling */
+.values-card span {
+    display: block;
+    margin-top: 6px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* ------------------- R Y B BORDER COLORS ------------------- */
+
+/* Voltage Row */
+.values-card div:nth-child(1) { border-left: 4px solid #ef4444; } /* R */
+.values-card div:nth-child(2) { border-left: 4px solid #facc15; } /* Y */
+.values-card div:nth-child(3) { border-left: 4px solid #3b82f6; } /* B */
+
+/* Current Row */
+.values-card div:nth-child(4) { border-left: 4px solid #ef4444; }
+.values-card div:nth-child(5) { border-left: 4px solid #facc15; }
+.values-card div:nth-child(6) { border-left: 4px solid #3b82f6; }
+
+/* ------------------- R Y B VALUE COLORS ------------------- */
+
+/* Voltage Row */
+.values-card div:nth-child(1) span { color: #ef4444; }
+.values-card div:nth-child(2) span { color: #facc15; }
+.values-card div:nth-child(3) span { color: #3b82f6; }
+
+/* Current Row */
+.values-card div:nth-child(4) span { color: #ef4444; }
+.values-card div:nth-child(5) span { color: #facc15; }
+.values-card div:nth-child(6) span { color: #3b82f6; }
+
+/* ------------------- VALVE CONTAINER ------------------- */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.container .card {
+    width: 120px;
+    padding: 15px;
+}
+
+/* ------------------- BLINK EFFECT ------------------- */
+@keyframes blinkRed {
+    0% { box-shadow: 0 0 5px red; }
+    50% { box-shadow: 0 0 25px red; }
+    100% { box-shadow: 0 0 5px red; }
+}
+
+.processing {
+    animation: blinkRed 0.6s infinite;
+}

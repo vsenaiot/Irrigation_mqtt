@@ -249,7 +249,7 @@ function startDashboard(){
         );
         setTimeout(() => {
             motorCard.classList.remove("processing");
-        }, 3000);
+        }, 2000);
     };
 
 
@@ -285,15 +285,16 @@ function startDashboard(){
                 `farm/${motorId}/cmd/v${i}`,
                 newState
             );
-            // Stop blinking after 1 second
+            // Stop blinking after 2 second
             setTimeout(()=>{
                 card.classList.remove("processing");
-            },3000);
+            },2000);
         };
 
     }
 
 }
+
 
 
 

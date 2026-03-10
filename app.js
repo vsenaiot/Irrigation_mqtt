@@ -46,24 +46,22 @@ mqttClient.on("connect", () => {
 // MQTT MESSAGE HANDLER
 
 mqttClient.on("message", (topic, message) => {    
-    const payload = message.toString();        
-    if(topic === `farm/${motorId}/telemetry`){
-
-    let data = JSON.parse(message.toString());
+    const payload = message.toString();      
     
+    if(topic === `farm/${motorId}/telemetry`){
+        
+    let data = JSON.parse(message.toString());    
     updateSensorUI("voltage_r",data.voltage_r);
     updateSensorUI("voltage_y",data.voltage_y);
-    updateSensorUI("voltage_b",data.voltage_b);
-    
+    updateSensorUI("voltage_b",data.voltage_b);    
     updateSensorUI("current_r",data.current_r);
     updateSensorUI("current_y",data.current_y);
-    updateSensorUI("current_b",data.current_b);
-    
-    updateSensorUI("pressure",data.pressure);
-    
+    updateSensorUI("current_b",data.current_b);    
+    updateSensorUI("pressure",data.pressure);    
     updateStatusUI("motor",data.motor);
     return;    
     }
+    
     const parts = topic.split("/");
     const type = parts[2];
     const name = parts[3];
@@ -289,6 +287,7 @@ function startDashboard(){
     }
 
 }
+
 
 
 

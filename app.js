@@ -46,9 +46,10 @@ mqttClient.on("connect", () => {
 // MQTT MESSAGE HANDLER
 
 mqttClient.on("message", (topic, message) => {
+    
+    const payload = message.toString();    
 
     console.log("MQTT Message:", topic, payload);
-    const payload = message.toString();    
     
     if(topic === `farm/${motorId}/telemetry`){
 
@@ -292,6 +293,7 @@ function startDashboard(){
     }
 
 }
+
 
 
 

@@ -70,9 +70,10 @@ mqttClient.on("message", (topic, message) => {
 
     if(type === "status"){
         updateStatusUI(name, payload);
+    }    
+    if(type === "sensor"){
+        updateSensorUI("time",payload);
     }
-
-
 });
 
 
@@ -101,7 +102,11 @@ function updateSensorUI(name,value){
     if(name==="pressure")
         document.getElementById("pressure").innerText=value;
     if(name==="ebStatus")
-        document.getElementById("ebStatus").innerText=value;    
+        document.getElementById("ebStatus").innerText=value;
+    
+    if(name==="time")
+        document.getElementById("time").innerText=value;   
+    
     if(name==="fault")
         document.getElementById("status").innerText=value;  
 }
@@ -299,6 +304,7 @@ function startDashboard(){
     }
 
 }
+
 
 
 

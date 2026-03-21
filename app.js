@@ -266,7 +266,7 @@ function startDashboard(){
     };
 
 
-    for(let i=1;i<=8;i++){
+    for(let i=2;i<=9;i++){
 
         const card=document.createElement("div");
         card.className="card off";
